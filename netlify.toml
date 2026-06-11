@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Bitrefill proxy: an edge function injects the Authorization header server-side,
+# so the API key never ships in the JS bundle (plain redirects can't read env vars).
+[[edge_functions]]
+  path = "/api/bitrefill/*"
+  function = "bitrefill-proxy"
+
+# Uniswap proxy: the trade-api gateway only serves CORS for localhost origins,
+# so production browser calls must go same-origin (key injected server-side too).
+[[edge_functions]]
+  path = "/api/uniswap/*"
+  function = "uniswap-proxy"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

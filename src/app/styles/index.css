@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0e14;
+  --color-foreground: #f4f6f8;
+  --color-card: #11161f;
+  --color-card-foreground: #f4f6f8;
+  --color-popover: #131a24;
+  --color-popover-foreground: #f4f6f8;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #f4f6f8;
+  --color-secondary: #1a212c;
+  --color-secondary-foreground: #f4f6f8;
+  --color-muted: #1a212c;
+  --color-muted-foreground: #8b95a5;
+  --color-accent: #1e293b;
+  --color-accent-foreground: #f4f6f8;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #f4f6f8;
+  --color-border: #1f2733;
+  --color-input: #232d3b;
+  --color-ring: #3b82f6;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  @apply bg-background text-foreground font-sans antialiased;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/*
+ * Visible focus for keyboard navigation across all interactive elements.
+ * Inside @layer base on purpose: unlayered styles would beat utility classes,
+ * making per-element opt-outs (focus-visible:ring-0) impossible.
+ */
+@layer base {
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}

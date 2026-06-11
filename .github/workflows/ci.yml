@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (Biome)
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc -b
+
+      - name: Tests
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify server-side keys never reach the bundle
+        run: |
+          # Any mention of these names in dist is a leak: Vite inlines the whole
+          # import.meta.env object (incl. VITE_-prefixed secrets) when any dep
+          # references it bare — which is why these keys must NOT use the prefix.
+          if grep -rqE "(BITREFILL|UNISWAP)_API_KEY" dist/assets/ 2>/dev/null; then
+            echo "Server-side key reference found in bundle" && exit 1
+          fi
+          echo "Bundle clean"
