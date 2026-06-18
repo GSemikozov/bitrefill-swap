@@ -1,9 +1,8 @@
+import { mapExecutionError, useSwapFlowStore } from '@entities/swap-flow';
 import { useExecutePurchase } from '@features/execute-swap';
 import { useSwapEstimate } from '@features/get-quote';
 import { DenominationForm } from '@features/select-denomination';
 import { TokenSelectDialog } from '@features/select-token';
-import { mapExecutionError } from '@shared/lib';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@shared/ui';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';

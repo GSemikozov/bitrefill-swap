@@ -1,5 +1,6 @@
 import { isApiError } from '@shared/api';
-import type { FailureReason } from './swap-flow/types';
+import { captureError } from '@shared/lib/monitoring';
+import type { FailureReason } from './types';
 
 export interface MappedFailure {
   reason: FailureReason;
@@ -21,15 +22,7 @@ function messageChain(error: unknown): string {
   return String(error);
 }
 
-/**
- * Maps wallet / RPC / API errors to a stable reason and a sentence a human can
- * act on. Raw RPC strings never reach the UI.
- */
-export function mapExecutionError(error: unknown): MappedFailure {
-  if (import.meta.env.DEV) {
-    // The mapped message hides the original — keep it visible for debugging.
-    console.error('[swap-flow] execution error:', error);
-  }
+function classify(error: unknown): MappedFailure {
   const chain = messageChain(error).toLowerCase();
 
   if (chain.includes('user rejected') || chain.includes('user denied')) {
@@ -82,4 +75,21 @@ export function mapExecutionError(error: unknown): MappedFailure {
     reason: 'unknown',
     message: 'Something unexpected went wrong. Your funds are safe — please retry.',
   };
+}
+
+/**
+ * Maps wallet / RPC / API errors to a stable reason and a sentence a human can
+ * act on. Raw RPC strings never reach the UI. Reports to monitoring (except
+ * user-initiated cancels, which aren't faults) with the redacted error attached.
+ */
+export function mapExecutionError(error: unknown): MappedFailure {
+  if (import.meta.env.DEV) {
+    // The mapped message hides the original — keep it visible for debugging.
+    console.error('[swap-flow] execution error:', error);
+  }
+  const mapped = classify(error);
+  if (mapped.reason !== 'user_rejected') {
+    captureError(error, { source: 'swap-flow', reason: mapped.reason });
+  }
+  return mapped;
 }

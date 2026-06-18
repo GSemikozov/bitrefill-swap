@@ -1,13 +1,4 @@
-import type { Address } from 'viem';
-
-/** Serializable token selection — amounts are intentionally not stored here. */
-export interface SelectedToken {
-  address: Address;
-  symbol: string;
-  name: string;
-  decimals: number;
-  logoUrl?: string;
-}
+import type { SelectedToken } from '@entities/token';
 
 export type FlowStatus =
   | 'idle'

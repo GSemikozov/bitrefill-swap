@@ -1,4 +1,4 @@
-import type { SelectedToken } from '@shared/lib/swap-flow';
+import type { SelectedToken } from '@entities/token';
 import { Button } from '@shared/ui';
 import { ChevronDown } from 'lucide-react';
 

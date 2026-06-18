@@ -1,6 +1,6 @@
 import { useInvoicePolling } from '@entities/invoice';
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { isInvoicePaid, isInvoiceTerminal } from '@shared/api/bitrefill';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { useEffect } from 'react';
 
 /** Let the user see the final step turn green before the screen changes. */

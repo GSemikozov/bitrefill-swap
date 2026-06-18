@@ -73,7 +73,7 @@ Feature-Sliced Design with strict layering (`app → pages → widgets → featu
 
 ```
 src/
-├── app/            # providers (wagmi + RainbowKit, TanStack Query), query-key factory, theme
+├── app/            # entry (main.tsx), providers (wagmi + RainbowKit, TanStack Query), theme
 ├── pages/swap/     # the single page, switches widgets by flow phase
 ├── widgets/
 │   ├── swap-card/        # token + denomination selection, review with quote countdown
@@ -81,11 +81,12 @@ src/
 │   └── redemption-card/  # masked code reveal/copy, order ids
 ├── features/       # connect-wallet, select-token, select-denomination,
 │                   # get-quote, execute-swap, pay-invoice (in execute), poll-invoice
-├── entities/       # token (discovery + rows), gift-card (denominations), invoice (polling)
+├── entities/       # swap-flow (purchase FSM + error mapping), token (discovery + rows),
+│                   # gift-card (denominations), invoice (polling)
 └── shared/
     ├── api/        # typed clients: bitrefill/ (zod-validated v2), uniswap/, tokens/
-    ├── lib/        # swap-flow FSM (Zustand), error mapping, formatting
-    ├── config/     # addresses, constants, validated env
+    ├── lib/        # monitoring (Sentry facade), formatting, classnames
+    ├── config/     # addresses, domain constants (bitrefill/invoice/quote/tokens), validated env
     └── ui/         # themed shadcn-style primitives (button, dialog, command, …)
 ```
 
@@ -104,7 +105,7 @@ animations, and the step indicator / success reveal would benefit most.
 
 ### The swap flow is a finite state machine
 
-One Zustand store ([shared/lib/swap-flow](src/shared/lib/swap-flow/store.ts)) with a single
+One Zustand store ([entities/swap-flow](src/entities/swap-flow/model/store.ts)) with a single
 discriminated `phase`, guarded transitions, and no scattered booleans:
 
 ```
@@ -199,7 +200,9 @@ API-side history).
 **What I'd do differently with more time.** A thin backend (key custody, webhook-driven invoice
 status, per-user history), Playwright e2e with a mock EIP-1193 wallet, Alchemy Portfolio API to
 collapse token discovery into one call, multi-chain input via bridging quotes, Permit2 deadline
-UX, Sentry with FSM-phase breadcrumbs, Storybook for `shared/ui`. Full list in the
+UX, Storybook for `shared/ui`, and shipping the proxy logs to a sink via Netlify Log Drains
+(error monitoring itself — Sentry with FSM-phase breadcrumbs + PII scrubbing — is now wired in
+[shared/lib/monitoring](src/shared/lib/monitoring/sentry.ts)). Full list in the
 [writeup](docs/WRITEUP.md#what-id-do-differently-with-more-time).
 
 **AI tools.** Built with **Claude Code** (Anthropic); **Claude in Chrome** drove the in-browser

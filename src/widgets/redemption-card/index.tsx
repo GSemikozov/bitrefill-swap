@@ -1,8 +1,8 @@
 import { CodePanel, useOrder } from '@entities/invoice';
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { extractRedemptionLink } from '@shared/api/bitrefill';
 import { isDemoPayment } from '@shared/config';
 import { recordPurchase } from '@shared/lib/purchase-history';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import {
   Button,
   Card,

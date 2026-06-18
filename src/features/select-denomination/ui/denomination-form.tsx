@@ -1,10 +1,10 @@
 import { useGiftCardProduct } from '@entities/gift-card';
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { useHeldTokens } from '@entities/token';
 import { type SwapEstimate, useSwapEstimate } from '@features/get-quote';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { NATIVE_TOKEN_ADDRESS } from '@shared/config';
 import { cn, formatTokenAmount, formatUsd, formatUsdcBaseUnits } from '@shared/lib';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { Button, Skeleton } from '@shared/ui';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';

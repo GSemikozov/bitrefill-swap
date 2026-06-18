@@ -1,4 +1,4 @@
-import { EMPTY_CONTEXT, useSwapFlowStore } from '@shared/lib/swap-flow';
+import { EMPTY_CONTEXT, useSwapFlowStore } from '@entities/swap-flow';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

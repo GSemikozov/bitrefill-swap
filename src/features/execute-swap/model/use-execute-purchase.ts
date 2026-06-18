@@ -1,9 +1,8 @@
+import { mapExecutionError, useSwapFlowStore } from '@entities/swap-flow';
 import { isUsdc } from '@entities/token';
 import { createInvoice } from '@shared/api/bitrefill';
 import { buildSwapTransaction, checkApproval, fetchSwapQuote } from '@shared/api/uniswap';
 import { isDemoPayment, USDC_BASE_ADDRESS } from '@shared/config';
-import { mapExecutionError } from '@shared/lib';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { useCallback } from 'react';
 import type { Address } from 'viem';
 import { erc20Abi } from 'viem';

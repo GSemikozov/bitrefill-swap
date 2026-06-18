@@ -46,7 +46,22 @@ npm run typecheck   # tsc -b --noEmit
 
 - Swap-flow is a Zustand FSM (discriminated union on `status`):
   `idle → selecting → quoting → review → creating_invoice → approving? → swapping? → paying →
-  polling_invoice → success | failed(recoverable, step, reason)`.
+  polling_invoice → success | failed(recoverable, step, reason)`. It lives in
+  `entities/swap-flow` (model/store|types|errors) — it's the core business process, not a
+  `shared/lib` util. `SelectedToken` is owned by `entities/token`; `mapExecutionError` ships with
+  the flow. Guarded `transition()` emits a PII-free funnel breadcrumb via `shared/lib/monitoring`.
+- Error monitoring is a thin Sentry facade in `shared/lib/monitoring` (so any layer can report
+  without importing `app`): `initMonitoring()` runs in `app/main.tsx`, no-op without
+  `VITE_SENTRY_DSN`. Errors only (no tracing/replay); `beforeSend`/`beforeBreadcrumb` redact any
+  `0x…` address/hash. Capture points: error boundary + `mapExecutionError` (skips user-rejects).
+- Proxy observability: edge functions wrap handlers with `netlify/edge-functions/_shared/
+  observability.ts` (one structured JSON log line per request, secrets never logged); the Vite
+  dev proxy mirrors it via `configure` in vite.config.ts. The edge helper also reports upstream
+  5xx + thrown errors to Sentry via `@sentry/deno` — loaded lazily (literal `import('npm:@sentry/
+  deno@^8')`) only when `SENTRY_DSN` (falls back to `VITE_SENTRY_DSN`) is set, flushed before the
+  isolate freezes; a failed load degrades to logs only. Deno-only file, excluded from app tsc.
+  Edge Sentry delivery can only be verified on a real Netlify deploy. Log Drains → CloudWatch/
+  Datadog remain the next step for raw logs.
 - Invoice created only on user confirm; then re-quote EXACT_OUTPUT for `payment.price` USDC.
 - Payment = two separate on-chain steps with separate tx hashes: Uniswap swap → ERC-20 transfer
   of `payment.price` USDC to `payment.address`.
