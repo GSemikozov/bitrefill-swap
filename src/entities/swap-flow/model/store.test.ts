@@ -1,6 +1,7 @@
+import type { SelectedToken } from '@entities/token';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { deriveResumedState, useSwapFlowStore } from './store';
-import { EMPTY_CONTEXT, type SelectedToken } from './types';
+import { EMPTY_CONTEXT } from './types';
 
 const weth: SelectedToken = {
   address: '0x4200000000000000000000000000000000000006',

@@ -1,7 +1,7 @@
+import { type FlowStatus, useSwapFlowStore } from '@entities/swap-flow';
 import { ConnectWalletButton, NetworkBanner, useIsOnBase } from '@features/connect-wallet';
 import { DemoToggle } from '@features/demo-mode';
 import { PurchaseHistory } from '@features/purchase-history';
-import { type FlowStatus, useSwapFlowStore } from '@shared/lib/swap-flow';
 import { Card, CardContent } from '@shared/ui';
 import { CheckoutStatus } from '@widgets/checkout-status';
 import { RedemptionCard } from '@widgets/redemption-card';

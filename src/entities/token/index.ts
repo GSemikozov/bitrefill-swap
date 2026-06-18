@@ -1,3 +1,3 @@
 export { useHeldTokens } from './api/use-held-tokens';
-export { isUsdc, toSelectedToken } from './model/types';
+export { isUsdc, type SelectedToken, toSelectedToken } from './model/types';
 export { TokenRow } from './ui/token-row';

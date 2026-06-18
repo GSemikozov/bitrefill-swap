@@ -1,3 +1,4 @@
+import type { SelectedToken } from '@entities/token';
 import { isUsdc } from '@entities/token';
 import { QUERY_KEYS } from '@shared/api/query-keys';
 import { fetchSwapQuote } from '@shared/api/uniswap';
@@ -7,7 +8,6 @@ import {
   USDC_PRICE_PREMIUM_ESTIMATE,
   useIsDemoPayment,
 } from '@shared/config';
-import type { SelectedToken } from '@shared/lib/swap-flow';
 import { useQuery } from '@tanstack/react-query';
 import type { Address } from 'viem';
 

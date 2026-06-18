@@ -1,8 +1,8 @@
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { isUsdc } from '@entities/token';
 import { useExecutePurchase } from '@features/execute-swap';
 import { useInvoiceStatusSync } from '@features/poll-invoice';
 import { useIsDemoPayment } from '@shared/config';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/ui';
 import { useEffect, useState } from 'react';
 import { buildSteps } from './model/steps';

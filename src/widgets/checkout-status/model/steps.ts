@@ -1,4 +1,4 @@
-import type { FailureStep, FlowStatus } from '@shared/lib/swap-flow';
+import type { FailureStep, FlowStatus } from '@entities/swap-flow';
 
 type StepId = 'invoice' | 'approve' | 'swap' | 'pay' | 'confirm';
 

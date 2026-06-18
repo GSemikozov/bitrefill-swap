@@ -1,3 +1,4 @@
+import { captureError } from '@shared/lib/monitoring';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface ErrorBoundaryState {
@@ -18,6 +19,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, ErrorBo
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Unhandled render error:', error, info.componentStack);
+    captureError(error, { source: 'react-error-boundary', componentStack: info.componentStack });
   }
 
   render() {

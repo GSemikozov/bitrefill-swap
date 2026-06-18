@@ -1,8 +1,26 @@
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { loadEnv } from 'vite';
+import { loadEnv, type ProxyOptions } from 'vite';
 import { defineConfig } from 'vitest/config';
+
+// Dev-proxy observability mirroring the Netlify edge helper: surface proxy
+// errors and upstream 4xx/5xx as structured log lines so the proxy is debuggable
+// in dev too. Secrets (injected auth headers) are never logged.
+function logDevProxy(name: string): ProxyOptions['configure'] {
+  return (proxy) => {
+    proxy.on('error', (err, req) => {
+      console.error(JSON.stringify({ level: 'error', proxy: name, path: req.url, error: err.message }));
+    });
+    proxy.on('proxyRes', (proxyRes, req) => {
+      const status = proxyRes.statusCode ?? 0;
+      if (status >= 400) {
+        const level = status >= 500 ? 'error' : 'warn';
+        console.warn(JSON.stringify({ level, proxy: name, path: req.url, status }));
+      }
+    });
+  };
+}
 
 export default defineConfig(({ mode }) => {
   // Load .env without the VITE_ prefix filter: BITREFILL_API_KEY must stay
@@ -32,6 +50,7 @@ export default defineConfig(({ mode }) => {
           headers: {
             Authorization: `Bearer ${env.BITREFILL_API_KEY ?? ''}`,
           },
+          configure: logDevProxy('bitrefill'),
         },
         // Same-origin proxy mirrors the Netlify edge function: the trade-api
         // gateway only serves CORS for localhost, so production must proxy —
@@ -43,6 +62,7 @@ export default defineConfig(({ mode }) => {
           headers: {
             'x-api-key': env.UNISWAP_API_KEY ?? env.VITE_UNISWAP_API_KEY ?? '',
           },
+          configure: logDevProxy('uniswap'),
         },
       },
     },

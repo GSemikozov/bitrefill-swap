@@ -1,7 +1,7 @@
+import type { SelectedToken } from '@entities/token';
 import { QuoteCountdown, type SwapEstimate } from '@features/get-quote';
 import { USDC_DECIMALS } from '@shared/config';
 import { formatRate, formatTokenAmount, formatUsd, formatUsdcBaseUnits } from '@shared/lib';
-import type { SelectedToken } from '@shared/lib/swap-flow';
 import { Button } from '@shared/ui';
 import { ArrowDown } from 'lucide-react';
 

@@ -1,5 +1,5 @@
+import { EMPTY_CONTEXT, useSwapFlowStore } from '@entities/swap-flow';
 import { setDemoPayment } from '@shared/config';
-import { EMPTY_CONTEXT, useSwapFlowStore } from '@shared/lib/swap-flow';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useExecutePurchase } from './use-execute-purchase';

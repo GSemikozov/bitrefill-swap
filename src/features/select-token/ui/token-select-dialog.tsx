@@ -1,6 +1,6 @@
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { TokenRow, toSelectedToken, useHeldTokens } from '@entities/token';
 import type { DiscoveredToken } from '@shared/api/tokens';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import {
   Button,
   Command,

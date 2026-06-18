@@ -1,3 +1,5 @@
+import type { SelectedToken } from '@entities/token';
+import { trackFlowEvent } from '@shared/lib/monitoring';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import {
@@ -9,7 +11,6 @@ import {
   type FlowPhase,
   type FlowStatus,
   RETRY_TARGET,
-  type SelectedToken,
   TRANSITIONS,
 } from './types';
 
@@ -104,6 +105,8 @@ export const useSwapFlowStore = create<SwapFlowState>()(
             return false;
           }
           set({ phase: to, ...extra }, false, `transition/${from}→${to.status}`);
+          // Funnel breadcrumb — status only, never addresses/amounts (PII-free).
+          trackFlowEvent(`${from}→${to.status}`);
           return true;
         }
 

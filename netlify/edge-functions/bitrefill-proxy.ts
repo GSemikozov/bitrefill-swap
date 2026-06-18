@@ -2,10 +2,16 @@
 // and injects the Authorization header from a server-side env var. This mirrors the
 // Vite dev proxy (vite.config.ts) so the Bitrefill key never reaches the client bundle.
 
+import { withObservability } from './_shared/observability.ts';
+
 const BITREFILL_ORIGIN = 'https://api.bitrefill.com';
 const PROXY_PREFIX = '/api/bitrefill';
 
-export default async function handler(request: Request): Promise<Response> {
+export default function handler(request: Request): Promise<Response> {
+  return withObservability('bitrefill', request, () => proxy(request));
+}
+
+async function proxy(request: Request): Promise<Response> {
   // Netlify global is available at runtime; typed loosely to keep this file
   // out of the app's TS project (it runs on Deno, not in the bundle).
   const apiKey = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } })

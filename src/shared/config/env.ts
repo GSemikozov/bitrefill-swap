@@ -15,6 +15,10 @@ const envSchema = z.object({
   // (auto_pay, never charged — verified live 2026-06-12) and skips all on-chain
   // steps. Lets anyone run the full UX without crypto in the wallet.
   VITE_DEMO_PAYMENT: z.enum(['balance']).optional(),
+  // Sentry DSN for error monitoring. Optional: empty disables monitoring entirely
+  // (no-op). Safe to expose — a DSN is an ingest endpoint, not a secret. Point it
+  // at Sentry's free tier or a self-hosted GlitchTip.
+  VITE_SENTRY_DSN: z.string().optional().default(''),
 });
 
 // Explicit per-key access on purpose: passing the whole `import.meta.env`
@@ -25,6 +29,7 @@ const parsed = envSchema.safeParse({
   VITE_ALCHEMY_API_KEY: import.meta.env.VITE_ALCHEMY_API_KEY,
   VITE_BITREFILL_API_BASE: import.meta.env.VITE_BITREFILL_API_BASE,
   VITE_DEMO_PAYMENT: import.meta.env.VITE_DEMO_PAYMENT,
+  VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
 });
 
 if (!parsed.success) {

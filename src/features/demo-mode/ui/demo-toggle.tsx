@@ -1,6 +1,6 @@
+import { useSwapFlowStore } from '@entities/swap-flow';
 import { setDemoPayment, useIsDemoPayment } from '@shared/config';
 import { cn } from '@shared/lib';
-import { useSwapFlowStore } from '@shared/lib/swap-flow';
 import { FlaskConical } from 'lucide-react';
 
 /**

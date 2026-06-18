@@ -3,10 +3,16 @@
 // serves CORS for localhost origins (verified 2026-06-12) — production browser
 // calls must be same-origin. Bonus: the key stays out of the client bundle.
 
+import { withObservability } from './_shared/observability.ts';
+
 const UNISWAP_ORIGIN = 'https://trade-api.gateway.uniswap.org';
 const PROXY_PREFIX = '/api/uniswap';
 
-export default async function handler(request: Request): Promise<Response> {
+export default function handler(request: Request): Promise<Response> {
+  return withObservability('uniswap', request, () => proxy(request));
+}
+
+async function proxy(request: Request): Promise<Response> {
   const env = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify
     ?.env;
   const apiKey = env?.get('UNISWAP_API_KEY') ?? env?.get('VITE_UNISWAP_API_KEY');
