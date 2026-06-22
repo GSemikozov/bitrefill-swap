@@ -32,8 +32,6 @@ export function RedemptionCard() {
     phase.status === 'success'
   );
 
-  // Durable history (ids only — the code is re-fetchable): without this the
-  // code would be unreachable from the UI after "Start a new swap".
   useEffect(() => {
     if (phase.status !== 'success' || !orderId || !invoiceId || !address || !denomination) return;
     recordPurchase({
@@ -67,8 +65,8 @@ export function RedemptionCard() {
         ) : isError ? (
           <div className="flex flex-col items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
             <p>
-              Couldn't load the code, but your order is safe — retry below or find it later with the
-              order id.
+              Couldn't load the code, but your order is safe — it stays in your purchase history, so
+              you can retry now or come back later.
             </p>
             <Button size="sm" variant="outline" onClick={() => refetch()}>
               Retry
@@ -94,19 +92,6 @@ export function RedemptionCard() {
             <ExternalLink className="h-3.5 w-3.5" aria-hidden />
           </a>
         )}
-
-        <dl className="space-y-1 text-xs">
-          <div className="flex justify-between gap-4">
-            <dt className="shrink-0 whitespace-nowrap text-muted-foreground">Order id</dt>
-            <dd className="min-w-0 flex-1 select-all break-all text-right font-mono">{orderId}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="shrink-0 whitespace-nowrap text-muted-foreground">Invoice id</dt>
-            <dd className="min-w-0 flex-1 select-all break-all text-right font-mono">
-              {invoiceId}
-            </dd>
-          </div>
-        </dl>
 
         <Button variant="outline" onClick={reset}>
           Start a new swap

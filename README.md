@@ -99,9 +99,9 @@ documenting the dynamic states that currently only show up mid-flow (button load
 placeholders, command-list empty/error states, step-indicator phases) as isolated, reviewable
 stories.
 
-A further UI improvement I'd add: **motion** — transitions between flow phases and on component
-state updates. The FSM already makes the phase boundaries explicit hooks for entrance/exit
-animations, and the step indicator / success reveal would benefit most.
+**Motion** is wired via `tw-animate-css`: modals animate open/close (Radix keeps the node mounted
+on `data-state="closed"`) and the main content fades on phase changes (connect → swap → checkout
+→ success), so cards and amounts don't snap in.
 
 ### The swap flow is a finite state machine
 

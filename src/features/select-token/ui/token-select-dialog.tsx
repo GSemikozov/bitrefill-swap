@@ -42,6 +42,7 @@ export function TokenSelectDialog({ open, onOpenChange }: TokenSelectDialogProps
   const { address } = useAccount();
   const { data: tokens, isLoading, isError, refetch } = useHeldTokens(address);
   const setToken = useSwapFlowStore((s) => s.setToken);
+  const selectedAddress = useSwapFlowStore((s) => s.token?.address);
 
   function handleSelect(token: DiscoveredToken) {
     setToken(toSelectedToken(token));
@@ -76,7 +77,7 @@ export function TokenSelectDialog({ open, onOpenChange }: TokenSelectDialogProps
                     value={`${token.symbol} ${token.name}`}
                     onSelect={() => handleSelect(token)}
                   >
-                    <TokenRow token={token} />
+                    <TokenRow token={token} selected={token.address === selectedAddress} />
                   </CommandItem>
                 ))}
               </>

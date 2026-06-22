@@ -68,10 +68,10 @@ describe('RedemptionCard', () => {
     expect(await navigator.clipboard.readText()).toBe(CODE);
   });
 
-  it('shows order and invoice ids', () => {
+  it('does not surface internal order/invoice ids to the buyer', () => {
     render(<RedemptionCard />);
-    expect(screen.getByText('ord-1')).toBeInTheDocument();
-    expect(screen.getByText('inv-1')).toBeInTheDocument();
+    expect(screen.queryByText('ord-1')).not.toBeInTheDocument();
+    expect(screen.queryByText('inv-1')).not.toBeInTheDocument();
   });
 
   it('keeps the order safe with a retry when loading the code fails', async () => {

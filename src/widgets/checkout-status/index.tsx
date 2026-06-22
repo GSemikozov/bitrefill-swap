@@ -41,15 +41,14 @@ function FailurePanel() {
   );
 }
 
-function SlowPollingNotice({ invoiceId }: { invoiceId: string }) {
+function SlowPollingNotice() {
   return (
     <div className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm">
       <p className="font-medium">Taking longer than usual</p>
       <p className="mt-1 text-muted-foreground">
         Your payment was sent and the invoice is still being confirmed. It's safe to keep this tab
-        open — or note your invoice id and check back later:
+        open — or reload anytime; the purchase resumes right where it left off.
       </p>
-      <p className="mt-2 select-all font-mono text-xs">{invoiceId}</p>
     </div>
   );
 }
@@ -94,11 +93,8 @@ export function CheckoutStatus() {
 
   const demo = useIsDemoPayment();
   const steps = buildSteps({
-    // Once paid, render every step done during the brief pause before the
-    // success screen takes over.
     phaseStatus: paid ? 'success' : phase.status,
     failedStep: phase.status === 'failed' ? phase.step : undefined,
-    // Demo mode never swaps — same step shape as paying directly in USDC.
     usdcDirect: demo || (token ? isUsdc(token.address) : false),
     invoiceId,
     approveTxHash,
@@ -119,9 +115,7 @@ export function CheckoutStatus() {
       <CardContent className="flex flex-col gap-4">
         <StepIndicator steps={steps} />
         <WalletStuckHint waiting={steps.some((step) => step.state === 'wallet')} />
-        {softTimedOut && phase.status === 'polling_invoice' && invoiceId && (
-          <SlowPollingNotice invoiceId={invoiceId} />
-        )}
+        {softTimedOut && phase.status === 'polling_invoice' && invoiceId && <SlowPollingNotice />}
         <FailurePanel />
       </CardContent>
     </Card>

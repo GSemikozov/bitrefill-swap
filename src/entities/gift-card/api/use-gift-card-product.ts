@@ -4,10 +4,11 @@ import { GIFT_CARD_PRODUCT_ID } from '@shared/config';
 import { useQuery } from '@tanstack/react-query';
 
 /**
- * Allowed by the assignment when the endpoint misbehaves: the observed
- * denominations of the test product (USD).
+ * Standard denominations of the test product (USD), used when the product
+ * endpoint misbehaves. Also drives the loading-skeleton count so it matches
+ * the expected number of chips.
  */
-const FALLBACK_DENOMINATIONS = [10, 20, 30, 50, 100];
+export const FALLBACK_DENOMINATIONS = [10, 20, 30, 50, 100];
 
 export function useGiftCardProduct() {
   const query = useQuery({
