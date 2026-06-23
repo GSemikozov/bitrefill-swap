@@ -9,6 +9,7 @@ import { SwapCard } from '@widgets/swap-card';
 import { Wallet } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useResetSelectionOnAccountChange } from './model/use-reset-selection-on-account-change';
 
 const EXECUTION_STATUSES: FlowStatus[] = [
   'creating_invoice',
@@ -93,6 +94,8 @@ export function SwapPage() {
   const onBase = useIsOnBase();
   const status = useSwapFlowStore((s) => s.phase.status);
   const beginSelecting = useSwapFlowStore((s) => s.beginSelecting);
+
+  useResetSelectionOnAccountChange();
 
   useEffect(() => {
     if (isConnected && onBase && status === 'idle') beginSelecting();
