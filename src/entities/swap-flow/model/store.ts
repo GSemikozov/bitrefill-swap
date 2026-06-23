@@ -20,6 +20,7 @@ export interface SwapFlowState extends FlowContext {
   beginSelecting: () => void;
   cancelSelecting: () => void;
   setToken: (token: SelectedToken) => void;
+  clearSelection: () => void;
   setDenomination: (denomination: number) => void;
   beginQuoting: () => void;
   quoteReady: () => void;
@@ -121,6 +122,22 @@ export const useSwapFlowStore = create<SwapFlowState>()(
             const { status } = get().phase;
             if (status !== 'selecting' && status !== 'idle') return;
             set({ token }, false, 'setToken');
+          },
+
+          /**
+           * Drop the picked token when the connected wallet changes — it belongs
+           * to the previous account. Only acts before an invoice exists; a live
+           * purchase is tied to its paymentAddress and must never be disturbed.
+           * A pending quote/review is rewound to selecting so no stale estimate
+           * lingers for a token the new wallet may not hold.
+           */
+          clearSelection: () => {
+            const { status } = get().phase;
+            if (status === 'quoting' || status === 'review') {
+              set({ phase: { status: 'selecting' }, token: null }, false, 'clearSelection');
+            } else if (status === 'idle' || status === 'selecting') {
+              set({ token: null }, false, 'clearSelection');
+            }
           },
 
           setDenomination: (denomination) => {

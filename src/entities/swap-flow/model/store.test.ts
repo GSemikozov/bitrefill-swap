@@ -107,6 +107,32 @@ describe('useSwapFlowStore transitions', () => {
     expect(useSwapFlowStore.getState().denomination).toBe(10);
   });
 
+  it('clearSelection drops the token and rewinds quoting/review to selecting', () => {
+    advanceToReview();
+    useSwapFlowStore.getState().clearSelection();
+    expect(useSwapFlowStore.getState().phase.status).toBe('selecting');
+    expect(useSwapFlowStore.getState().token).toBeNull();
+    // denomination is wallet-agnostic and intentionally kept
+    expect(useSwapFlowStore.getState().denomination).toBe(10);
+  });
+
+  it('clearSelection clears the token while still selecting without changing phase', () => {
+    const store = useSwapFlowStore.getState();
+    store.beginSelecting();
+    store.setToken(weth);
+    store.clearSelection();
+    expect(useSwapFlowStore.getState().phase.status).toBe('selecting');
+    expect(useSwapFlowStore.getState().token).toBeNull();
+  });
+
+  it('clearSelection never disturbs a live purchase (invoice already exists)', () => {
+    advanceToPolling();
+    useSwapFlowStore.getState().clearSelection();
+    expect(useSwapFlowStore.getState().phase.status).toBe('polling_invoice');
+    expect(useSwapFlowStore.getState().token?.symbol).toBe('WETH');
+    expect(useSwapFlowStore.getState().invoiceId).toBe('inv-1');
+  });
+
   it('supports re-quoting from review on quote expiry', () => {
     advanceToReview();
     useSwapFlowStore.getState().requoteFromReview();
