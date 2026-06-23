@@ -9,7 +9,6 @@ import { useAccount } from 'wagmi';
 
 function HistoryRow({ record }: { record: PurchaseRecord }) {
   const [open, setOpen] = useState(false);
-  // The code is never stored — it is re-fetched on demand by order id.
   const { redemptionCode, isLoading, isError, refetch } = useOrder(record.orderId, open);
 
   const date = new Date(record.completedAt).toLocaleDateString('en-US', {
@@ -50,28 +49,17 @@ function HistoryRow({ record }: { record: PurchaseRecord }) {
             </div>
           )}
           {redemptionCode && <CodePanel code={redemptionCode} />}
-          <dl className="space-y-1 text-xs">
-            <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Order id</dt>
-              <dd className="select-all font-mono">{record.orderId}</dd>
-            </div>
-            {record.payTxHash && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Payment</dt>
-                <dd>
-                  <a
-                    href={explorerTxUrl(record.payTxHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline"
-                  >
-                    View on BaseScan
-                    <ExternalLink className="h-3 w-3" aria-hidden />
-                  </a>
-                </dd>
-              </div>
-            )}
-          </dl>
+          {record.payTxHash && (
+            <a
+              href={explorerTxUrl(record.payTxHash)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary text-xs hover:underline"
+            >
+              View payment on BaseScan
+              <ExternalLink className="h-3 w-3" aria-hidden />
+            </a>
+          )}
         </div>
       )}
     </li>
@@ -81,8 +69,6 @@ function HistoryRow({ record }: { record: PurchaseRecord }) {
 /** Completed purchases for the connected wallet, codes re-fetchable any time. */
 export function PurchaseHistory() {
   const { address } = useAccount();
-  // localStorage is read once per mount — the section remounts on flow reset,
-  // which is exactly when a new entry can appear.
   const records = useMemo(() => (address ? loadPurchaseHistory(address) : []), [address]);
 
   if (records.length === 0) return null;

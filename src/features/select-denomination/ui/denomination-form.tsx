@@ -1,9 +1,9 @@
-import { useGiftCardProduct } from '@entities/gift-card';
+import { FALLBACK_DENOMINATIONS, useGiftCardProduct } from '@entities/gift-card';
 import { useSwapFlowStore } from '@entities/swap-flow';
 import { useHeldTokens } from '@entities/token';
 import { type SwapEstimate, useSwapEstimate } from '@features/get-quote';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { NATIVE_TOKEN_ADDRESS } from '@shared/config';
+import { NATIVE_TOKEN_ADDRESS, useIsDemoPayment } from '@shared/config';
 import { cn, formatTokenAmount, formatUsd, formatUsdcBaseUnits } from '@shared/lib';
 import { Button, Skeleton } from '@shared/ui';
 import { useMemo } from 'react';
@@ -22,7 +22,6 @@ const DEFAULT_GAS_RESERVE = parseEther('0.0003');
 
 function gasReserveFor(estimate: SwapEstimate, ethPriceUsd: number | undefined): bigint {
   if (estimate.gasFeeUsd && ethPriceUsd) {
-    // Twice the quoted network fee, in wei — generous but not blocking.
     return BigInt(Math.round(((estimate.gasFeeUsd * 2) / ethPriceUsd) * 1e18));
   }
   return DEFAULT_GAS_RESERVE;
@@ -48,7 +47,15 @@ function EstimateLine({
   decimals: number;
   problem: AffordabilityProblem | null;
 }) {
-  if (isLoading) return <Skeleton className="h-4 w-48" />;
+  if (isLoading) {
+    return (
+      <div className="space-y-1.5">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-2/3" />
+      </div>
+    );
+  }
   if (isError) {
     return <p className="text-destructive text-sm">Couldn't estimate the price right now.</p>;
   }
@@ -65,12 +72,18 @@ function EstimateLine({
   return (
     <div className="space-y-1">
       <p className="text-muted-foreground text-sm">
-        ≈{' '}
+        You'll pay{' '}
         <span className="font-medium text-foreground tabular-nums">
-          {formatTokenAmount(estimate.inputAmount, decimals)} {symbol}
+          ≈ {formatTokenAmount(estimate.inputAmount, decimals)} {symbol}
         </span>{' '}
-        for {formatUsdcBaseUnits(estimate.usdcOut)} in USDC{' '}
-        <span title="Final price is fixed when the invoice is created">(estimate)</span>
+        for {formatUsdcBaseUnits(estimate.usdcOut)} in USDC.
+      </p>
+      <p className="text-muted-foreground text-xs">
+        Have at least{' '}
+        <span className="font-medium text-foreground tabular-nums">
+          {formatTokenAmount(estimate.maxInputAmount, decimals)} {symbol}
+        </span>{' '}
+        in your wallet — the exact price is fixed when the invoice is created.
       </p>
       {problem && <p className="text-destructive text-sm">{PROBLEM_MESSAGES[problem](symbol)}</p>}
     </div>
@@ -84,6 +97,7 @@ export function DenominationForm() {
   const setDenomination = useSwapFlowStore((s) => s.setDenomination);
   const beginQuoting = useSwapFlowStore((s) => s.beginQuoting);
 
+  const demo = useIsDemoPayment();
   const { denominations, isLoading: productLoading, usedFallback } = useGiftCardProduct();
   const { data: heldTokens } = useHeldTokens(address);
   const { estimate, isLoading, isError } = useSwapEstimate(token, denomination, address);
@@ -103,9 +117,8 @@ export function DenominationForm() {
       : undefined;
   const ethPriceUsd = heldTokens?.find((t) => t.address === NATIVE_TOKEN_ADDRESS)?.priceUsd;
 
-  // Demo mode pays nothing on-chain — balance checks would only mislead.
   const problem =
-    estimate && held && !estimate.demo
+    estimate && held && !demo
       ? checkAffordability({
           balance: held.balance,
           maxInput: estimate.maxInputAmount,
@@ -131,22 +144,22 @@ export function DenominationForm() {
         <p className="mb-2 font-medium text-sm">Gift card amount (USD)</p>
         {productLoading ? (
           <div className="flex flex-wrap gap-2">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-10 w-16 rounded-md" />
+            {FALLBACK_DENOMINATIONS.map((d) => (
+              <Skeleton key={d} className="h-10 w-20 rounded-md" />
             ))}
           </div>
         ) : (
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Denominations">
             {denominations.map((value) => {
-              const unaffordable =
-                !estimate?.demo && balanceUsd !== undefined && value > balanceUsd;
+              const unaffordable = !demo && balanceUsd !== undefined && value > balanceUsd;
+              const selected = denomination === value;
               return (
                 <Button
                   key={value}
                   type="button"
                   role="radio"
-                  aria-checked={denomination === value}
-                  variant={denomination === value ? 'default' : 'outline'}
+                  aria-checked={selected}
+                  variant={selected ? 'default' : 'outline'}
                   className={cn('min-w-16', unaffordable && 'opacity-50')}
                   disabled={unaffordable}
                   title={unaffordable ? 'Exceeds your balance for this token' : undefined}

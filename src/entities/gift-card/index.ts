@@ -1,1 +1,1 @@
-export { useGiftCardProduct } from './api/use-gift-card-product';
+export { FALLBACK_DENOMINATIONS, useGiftCardProduct } from './api/use-gift-card-product';

@@ -54,19 +54,53 @@ function ConnectPrompt() {
   );
 }
 
+type View = 'connect' | 'blocked' | 'success' | 'executing' | 'select';
+
+/**
+ * Coarse "which card is on screen". Doubles as the wrapper key so a phase
+ * change remounts it and the new card fades in instead of snapping.
+ */
+function currentView(s: {
+  isConnected: boolean;
+  blocked: boolean;
+  status: FlowStatus;
+  executing: boolean;
+}): View {
+  if (!s.isConnected) return 'connect';
+  if (s.blocked) return 'blocked';
+  if (s.status === 'success') return 'success';
+  return s.executing ? 'executing' : 'select';
+}
+
+/** The single card for the current phase (network banner handles `blocked`). */
+function PhaseCard({ view }: { view: View }) {
+  switch (view) {
+    case 'connect':
+      return <ConnectPrompt />;
+    case 'success':
+      return <RedemptionCard />;
+    case 'executing':
+      return <CheckoutStatus />;
+    case 'select':
+      return <SwapCard />;
+    default:
+      return null;
+  }
+}
+
 export function SwapPage() {
   const { isConnected } = useAccount();
   const onBase = useIsOnBase();
   const status = useSwapFlowStore((s) => s.phase.status);
   const beginSelecting = useSwapFlowStore((s) => s.beginSelecting);
 
-  // The flow starts as soon as the user can act on it.
   useEffect(() => {
     if (isConnected && onBase && status === 'idle') beginSelecting();
   }, [isConnected, onBase, status, beginSelecting]);
 
   const executing = EXECUTION_STATUSES.includes(status);
   const blocked = isConnected && !onBase;
+  const view = currentView({ isConnected, blocked, status, executing });
 
   return (
     <main className="mx-auto flex min-h-screen w-full flex-col gap-4 px-4 py-6 sm:py-10 md:max-w-md">
@@ -87,13 +121,10 @@ export function SwapPage() {
         {STATUS_ANNOUNCEMENTS[status]}
       </p>
 
-      {!isConnected && <ConnectPrompt />}
-      {isConnected &&
-        !blocked &&
-        (status === 'success' ? <RedemptionCard /> : executing ? <CheckoutStatus /> : <SwapCard />)}
-      {isConnected && !blocked && (status === 'idle' || status === 'selecting') && (
-        <PurchaseHistory />
-      )}
+      <div key={view} className="flex flex-col gap-4 duration-200 animate-in fade-in-0">
+        <PhaseCard view={view} />
+        {view === 'select' && <PurchaseHistory />}
+      </div>
 
       <footer className="mt-auto pt-6 text-center text-muted-foreground text-xs">
         Settles in USDC on Base · Powered by Uniswap and Bitrefill
