@@ -20,7 +20,10 @@ export function QuoteCountdown({ updatedAt, className }: QuoteCountdownProps) {
 
   if (!updatedAt) return null;
 
-  const secondsLeft = Math.max(0, Math.ceil((updatedAt + QUOTE_TTL_MS - now) / 1_000));
+  const secondsLeft = Math.min(
+    Math.ceil(QUOTE_TTL_MS / 1_000),
+    Math.max(0, Math.ceil((updatedAt + QUOTE_TTL_MS - now) / 1_000))
+  );
 
   return (
     <span
