@@ -185,6 +185,14 @@ implementation of the contract.
   extension (verified end-to-end), and on a real phone the link opens the MetaMask app — so the
   warning only appears in emulation, never to an actual user.
 
+- **Order emails go to the API-key account, not the buyer.** The app talks to Bitrefill through a
+  single server-side API key, so every order is created under that one Bitrefill account.
+  Bitrefill's order-confirmation emails therefore land in the key owner's inbox regardless of who
+  drives the UI — the request payload carries no per-user email (only the wallet as `refund_address`),
+  and the connected wallet is just the on-chain payer, unrelated to Bitrefill account identity. A
+  multi-tenant product would use per-user Bitrefill (sub-)accounts or route notifications through its
+  own backend.
+
 ## Approach, decisions, and AI usage
 
 **How the problem was approached.** Probe first, build second: both APIs were hit with the real
