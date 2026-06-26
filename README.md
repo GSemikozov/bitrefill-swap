@@ -22,7 +22,7 @@ code. Paying directly with USDC skips the swap entirely.
 | Client state | Zustand v5 — the swap flow as a finite state machine, persisted to sessionStorage |
 | Forms / validation | React Hook Form + zod v4 (zod also validates every external API response) |
 | Styling | Tailwind CSS v4 (design tokens via `@theme`) · CVA · shadcn-style primitives |
-| Quality | Biome 2 (lint + format) · Vitest 4 + Testing Library (78 tests) · knip (dead code) · GitHub Actions |
+| Quality | Biome 2 (lint + format) · Vitest 4 + Testing Library (98 tests) · knip (dead code) · GitHub Actions |
 | Hosting | Netlify (static + edge-function proxies; [not locked in](#deployment-netlify)) |
 
 Decision rationale (why Zustand-FSM over RTK, why RainbowKit, why polling, etc.) lives in
@@ -61,7 +61,7 @@ an empty wallet still gets a token list to pick from. The toggle is disabled mid
 npm run build      # tsc -b && vite build → dist/
 npm run preview    # Preview the production build
 npm run test       # Vitest watch mode
-npm run test:run   # Single run (67 tests)
+npm run test:run   # Single run (98 tests)
 npm run lint       # Biome check
 npm run lint:fix   # Biome auto-fix
 npm run typecheck  # tsc -b --noEmit
@@ -78,7 +78,7 @@ src/
 ├── widgets/
 │   ├── swap-card/        # token + denomination selection, review with quote countdown
 │   ├── checkout-status/  # vertical step indicator (approve → swap → pay → confirm)
-│   └── redemption-card/  # masked code reveal/copy, order ids
+│   └── redemption-card/  # masked code reveal/copy, redemption instructions
 ├── features/       # connect-wallet, select-token, select-denomination,
 │                   # get-quote, execute-swap, pay-invoice (in execute), poll-invoice
 ├── entities/       # swap-flow (purchase FSM + error mapping), token (discovery + rows),
@@ -122,6 +122,8 @@ idle → selecting → quoting → review
 - The durable slice (invoice id, payment details, tx hashes, phase) persists to
   `sessionStorage` — **reloading mid-flow resumes polling**; a paid invoice or code is never lost.
 - Failures are recoverable per step: retry re-enters the machine exactly where it broke.
+- Switching the connected wallet mid-selection clears the picked token (it belonged to the
+  previous account); a live invoice is never disturbed.
 
 ### Key integration notes
 
@@ -170,9 +172,11 @@ implementation of the contract.
 
 ## Testing
 
-- **Unit**: FSM transitions/guards/persistence/resume, zod schemas against captured live
-  fixtures, formatting, denomination + affordability validation, step-indicator model.
-- **Component**: token select (search/empty/skeleton/error), step indicator, redemption card.
+- **Unit**: FSM transitions/guards/persistence/resume, selection reset on wallet switch, zod
+  schemas against captured live fixtures, formatting, denomination + affordability validation,
+  step-indicator model.
+- **Component**: token select (search/empty/skeleton/error), step indicator, redemption card,
+  quote countdown (TTL cap / stale / pre-load states).
 - **Integration smoke**: mocked Bitrefill + Uniswap clients drive the full happy path, the
   approval path, the USDC-direct path, and rejection → retry through the real orchestrator.
 
