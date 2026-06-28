@@ -219,7 +219,8 @@ UX, Storybook for `shared/ui`, and shipping the proxy logs to a sink via Netlify
 
 **AI tools.** Built with **Claude Code** (Anthropic); **Claude in Chrome** drove the in-browser
 end-to-end runs, while every wallet confirmation and payment was performed by the author
-personally. The prompting style and representative prompts are described in
+personally. A log of the actual prompts and conversation lives in
+[docs/AI-PROMPTS.md](docs/AI-PROMPTS.md); the prompting style is also described in
 [docs/WRITEUP.md → AI usage](docs/WRITEUP.md#ai-usage); the three live e2e runs (demo,
 native-ETH swap, ERC-20 with approve + Permit2 on production) and the five bugs they caught are
 documented in [End-to-end verification](docs/WRITEUP.md#end-to-end-verification).
